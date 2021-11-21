@@ -1,4 +1,4 @@
-SET IDENTITY_INSERT Occupations ON
+SET IDENTITY_INSERT Occupations OFF
 INSERT INTO "occupations" (id, name) VALUES (1,'Administrator');
 INSERT INTO "occupations" (id, name) VALUES (2,'Artist');
 INSERT INTO "occupations" (id, name) VALUES (3,'Doctor');

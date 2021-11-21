@@ -1,9 +1,11 @@
-﻿namespace NetFinal.DataManagers.Users
+﻿using NetFinal.DataModels;
+
+namespace NetFinal.DataManagers.Users
 {
     public abstract class IUserManager
     {
-        public abstract void AddUser();
-        
+        public abstract User? AddUser();
+        public abstract User? GetUser();
         public abstract void AddUserRating();
         public abstract void ShowUserRatings();
         public abstract void AddOccupation();

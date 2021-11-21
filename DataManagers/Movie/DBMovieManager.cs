@@ -220,34 +220,37 @@ namespace NetFinal.DataManagers.Movie
 
         public void DisplayAll()
         {
+            List<DataModels.Movie> movie = new List<DataModels.Movie>();
+            List<MovieGenre> movieGenres = new List<MovieGenre>();
+            List<Genre> genres = new List<Genre>();
             try
             {
                 using (var db = new MovieContext())
                 {
-                    List<Genre> genresTogether = new List<Genre>();
-                    var movieTable = new ConsoleTable("Id","Title","Year","Genres");
-                    movieTable.Options.EnableCount = false;
-                    var movieList = db.Movies.Include(c=> c.MovieGenres).ThenInclude(c=> c.Genre);
-                    List<string?> listOfGenres = new List<string?>();
-                    var movies = db.Movies;
-                    foreach (var x in movies)
-                    {
-                        // var moviethingy23 = movies.Include(c => c.MovieGenres).ThenInclude(c => c.Genre).FirstOrDefault(c=> c == x);
-                        // foreach (var xx in moviethingy23?.MovieGenres ?? new List<MovieGenre>())
-                        // {
-                        //     listOfGenres.Add(xx.Genre.Name);
-                        // }
-                        movieTable.AddRow(x.MovieId, x.Title, x.ReleaseDate,"");
-                    }
-                    movieTable.Write();
-                    //get movie
-                    //get list of MovieGenres where Movie == Curent Movie in For Loop
-                    //get each Genre that Matches that List
+                    movie = db.Movies.ToList();
+                    movieGenres = db.MovieGenres.ToList();
+                    genres = db.Genres.ToList();
                 }
+                List<string> genresTogether = new List<string>();
+                var movieTable = new ConsoleTable("Id","Title","Year","Genres");
+                movieTable.Options.EnableCount = false;
+                List<string?> listOfGenres = new List<string?>();
+                foreach (var x in movie)
+                {
+                    List<string?> genresAppened = new List<string?>();
+                    var tempGenres = movieGenres.Where(c => c.Movie == x);
+                    foreach (var y in tempGenres)
+                    {
+                        genresTogether.Add(y.Genre.Name);
+                    }
+                    movieTable.AddRow(x.MovieId, x.Title, x.ReleaseDate,string.Join("|",genresTogether)); 
+                    genresTogether.Clear();
+                }
+                movieTable.Write();
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Console.WriteLine("Unable to connect to Movie Database");
                 throw;
             }
         }

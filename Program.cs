@@ -18,9 +18,8 @@ namespace NetFinal
     {
         public static void Main(string[] args)
         {
-            DBUserManager temp = new DBUserManager();
-            temp.AddUser();
-            temp.DisplayUsers();
+            DBUserManager userManager = new DBUserManager();
+            userManager.AddUserRating();
         }
     }
 }
