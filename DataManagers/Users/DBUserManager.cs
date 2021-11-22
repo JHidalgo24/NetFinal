@@ -154,7 +154,7 @@ namespace NetFinal.DataManagers.Users
                     var option = 1;
                     User user = new User();
                     var userValid = "";
-                    Console.WriteLine("Are you already a user? (Y/M)");
+                    Console.WriteLine("Are you already a user? (Y/N)");
                     var alreadyUser = Console.ReadLine().ToLower().Substring(0,1);
                     if (alreadyUser == "y")
                     {
@@ -172,7 +172,7 @@ namespace NetFinal.DataManagers.Users
                     Console.WriteLine("What film do you want to add a rating for?");
                     var title = Console.ReadLine();
                     var selectedMovies = db.Movies.Where(c => c.Title.ToLower().Contains(title.ToLower()));
-                    while (selectedMovies == null)
+                    while (selectedMovies.Count() == 0)
                     {
                         Console.WriteLine("Sorry nothing came up for that search\nEnter a new Film Title");
                         title = Console.ReadLine();
@@ -186,17 +186,18 @@ namespace NetFinal.DataManagers.Users
                     movieTable.Write();
                     Console.WriteLine("Which option do you want to add a rating for?");
                     option = menu.ValueGetter();
-                    if (selectedMovies.ToList().Count < option || option < 0)
+                    while (selectedMovies.ToList().Count < option || option <= 0)
                     {
                         Console.WriteLine("Sorry that isn't an option\nSelect a new Option");
+                        option = menu.ValueGetter();
                     }
                     var selectedFilm = selectedMovies.ToList()[option - 1];
                     Console.WriteLine($"You have selected {selectedFilm.Title}");
                     Console.WriteLine("What is the rating you want to give this film? 1-5");
                     var rating = menu.ValueGetter();
-                    while (rating > 5 || rating < 0)
+                    while (rating > 5 || rating <= 0)
                     {
-                        Console.WriteLine("Sorry only 1-5 is allowed\n Enter a new rating");
+                        Console.WriteLine("Sorry only 1-5 is allowed\nEnter a new rating");
                         rating = menu.ValueGetter();
                     }
                     DateTime ratedAt = DateTime.Now;
@@ -219,28 +220,9 @@ namespace NetFinal.DataManagers.Users
 
         public override void ShowUserRatings()
         {
-            try
-            {
-                List<Occupation> occupations = new List<Occupation>();
-                List<UserMovie> userMovies = new List<UserMovie>();
-                using (var db = new MovieContext())
-                {
-                    var userRatings = db.UserMovies.Include(c => c.Movie).Include(c => c.User).OrderByDescending(c=>c.Rating);
-                    var userRatingsTable = new ConsoleTable("Movie","Rating","Occupation");
-                    occupations = db.Occupations.ToList();
-                    foreach (var x in occupations)
-                    {
-                        var movie = userRatings.FirstOrDefault(c => c.User.Occupation == x);
-                        userRatingsTable.AddRow(movie?.Movie.Title == null ? "No Movie Info": movie.Movie.Title, movie?.Rating == null ? "N/A": movie.Rating, x.Name);
-                    }
-                    userRatingsTable.Write();
-                }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            /*still need to figure out how to make this work
+            says can't manually add Key for occupations although 
+            occupations isn't being accessed here (Last thing to add before piecing main together)*/
         }
 
         public override void AddOccupation()
@@ -251,6 +233,11 @@ namespace NetFinal.DataManagers.Users
                 {
                     Console.WriteLine("What is your Occupation? EX.(Student, Teacher, etc.)");
                     var occupationName = Console.ReadLine();
+                    if (db.Occupations.Any(x=> x.Name.ToLower() == occupationName))
+                    {
+                        Console.WriteLine("Sorry that is already in the list\nEnter a new Occupation");
+                        occupationName = Console.ReadLine();
+                    }
                     Occupation temp = new Occupation();
                     temp.Name = occupationName;
                     db.Occupations.Add(temp);
