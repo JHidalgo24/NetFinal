@@ -18,8 +18,53 @@ namespace NetFinal
     {
         public static void Main(string[] args)
         {
-            DBUserManager userManager = new DBUserManager();
-            
+            Menu menu = new Menu();
+            IMovieManager movieManager = new DBMovieManager();
+            IUserManager userManager = new DBUserManager();
+            int option = 0;
+            while (option != 7)
+            {
+                menu.DisplayOptions();
+                option = menu.IntValueGetter();
+                switch (option)
+                {
+                    case 1:
+                        movieManager.AddMovie();
+                        break;
+                    case 2:
+                        movieManager.EditMovie();
+                        break;
+                    case 3:
+                        var table = new ConsoleTable("Option","");
+                        table.Options.EnableCount = false;
+                        table.AddRow(1, "Search").AddRow(2,"Display all");
+                        table.Write();
+                        int choice = menu.IntValueGetter();
+                        if (choice == 1)
+                            movieManager.SearchMovie();
+                        else if (choice == 2)
+                            movieManager.DisplayAll();
+                        else
+                            Console.WriteLine("Sorry not an option");
+                        break;
+                    case 4:
+                        userManager.AddUser();
+                        break;
+                    case 5:
+                        userManager.AddUserRating();//this is still broken
+                                                    //Will attempt to fix later
+                        break;
+                    case 6:
+                        userManager.ShowUserRatings();
+                        break;
+                    default:
+                        Console.WriteLine("Sorry this isn't a choice");
+                        break;
+                    
+                }
+                
+            }
+
         }
     }
 }

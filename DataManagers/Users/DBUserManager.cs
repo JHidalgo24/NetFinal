@@ -23,11 +23,11 @@ namespace NetFinal.DataManagers.Users
                 using (var db = new MovieContext())
                 {
                     Console.WriteLine("What is your age?");
-                    var age = menu.ValueGetter();
+                    var age = menu.IntValueGetter();
                     while (age is > 118 or < 0)
                     {
                         Console.WriteLine("That is not a valid age enter a new one");
-                        age = menu.ValueGetter();
+                        age = menu.IntValueGetter();
                     }
                     Console.WriteLine("What is your gender?(M/F)");
                     var gender = Console.ReadLine().ToUpper().Substring(0,1);
@@ -91,11 +91,11 @@ namespace NetFinal.DataManagers.Users
                 {
                     Menu menu = new Menu();
                     Console.WriteLine("What is your age?");
-                    var age = menu.ValueGetter();
+                    var age = menu.IntValueGetter();
                     if (age < 0 || age > 118)
                     {
                         Console.WriteLine("Sorry that isn't a valid age\nEnter a new age");
-                        age = menu.ValueGetter();
+                        age = menu.IntValueGetter();
                     }
                     Console.WriteLine("What is your gender?(M/F)");
                     var gender = Console.ReadLine().ToUpper().Substring(0,1);
@@ -185,20 +185,20 @@ namespace NetFinal.DataManagers.Users
                     }
                     movieTable.Write();
                     Console.WriteLine("Which option do you want to add a rating for?");
-                    option = menu.ValueGetter();
+                    option = menu.IntValueGetter();
                     while (selectedMovies.ToList().Count < option || option <= 0)
                     {
                         Console.WriteLine("Sorry that isn't an option\nSelect a new Option");
-                        option = menu.ValueGetter();
+                        option = menu.IntValueGetter();
                     }
                     var selectedFilm = selectedMovies.ToList()[option - 1];
                     Console.WriteLine($"You have selected {selectedFilm.Title}");
                     Console.WriteLine("What is the rating you want to give this film? 1-5");
-                    var rating = menu.ValueGetter();
+                    var rating = menu.IntValueGetter();
                     while (rating > 5 || rating <= 0)
                     {
                         Console.WriteLine("Sorry only 1-5 is allowed\nEnter a new rating");
-                        rating = menu.ValueGetter();
+                        rating = menu.IntValueGetter();
                     }
                     DateTime ratedAt = DateTime.Now;
                     UserMovie temp = new UserMovie();

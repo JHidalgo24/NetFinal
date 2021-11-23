@@ -6,6 +6,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Threading.Tasks.Dataflow;
 using ConsoleTables;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using NetFinal.Context;
 using NetFinal.DataManagers.Users;
 using NetFinal.DataModels;
@@ -27,7 +28,7 @@ namespace NetFinal.DataManagers.Movie
                     Console.WriteLine("What is the title of the film?");
                     string title = Console.ReadLine();
                     Console.WriteLine("What year was the movie made? ex.(1979)");
-                    int year = menu.ValueGetter();
+                    int year = menu.IntValueGetter();
                     DateTime yearFormatted = DateTime.Parse($"01-01-{year}");
                     title = title + " (" + year + ")";
                     var movies = db.Movies.ToList();
@@ -68,7 +69,7 @@ namespace NetFinal.DataManagers.Movie
                         tableGenresUpdated.Write();
                         var movieInputted = db.Movies.ToList().FirstOrDefault(c => c.Title == title);
                         Console.WriteLine("How many of the genres in here are in the film?");
-                        var genreCount = menu.ValueGetter();
+                        var genreCount = menu.IntValueGetter();
                         for (int i = 0; i < genreCount; i++)
                         {
                             Console.WriteLine("Which genres are in the film?\n" +
@@ -130,7 +131,7 @@ namespace NetFinal.DataManagers.Movie
                         }
                         table.Write();
                         Console.WriteLine($"Out of the {movies.Count()} Movies in the table which Movie do you want(Select Option)?");
-                        var option = menu.ValueGetter();
+                        var option = menu.IntValueGetter();
                         DataModels.Movie selectedFilm = new DataModels.Movie();
                         if (movies.Count() < option)
                         {
@@ -154,7 +155,7 @@ namespace NetFinal.DataManagers.Movie
                             Console.WriteLine("What is the title of the film?");
                             var title = Console.ReadLine();
                             Console.WriteLine("What year was the movie made? ex.(1979)");
-                            int year = menu.ValueGetter();
+                            int year = menu.IntValueGetter();
                             DateTime yearFormatted = DateTime.Parse($"01-01-{year}");
                             title = title + " (" + year + ")";
                             if (db.Movies.Any(c=> c.Title.ToLower() == title.ToLower()))
@@ -163,7 +164,7 @@ namespace NetFinal.DataManagers.Movie
                                 Console.WriteLine("Enter a new title");
                                 title = Console.ReadLine();
                                 Console.WriteLine("What year was the movie made? ex.(1979)");
-                                year = menu.ValueGetter();
+                                year = menu.IntValueGetter();
                                 yearFormatted = DateTime.Parse($"01-01-{year}");
                                 title = title + " (" + year + ")";
                             }
@@ -181,7 +182,7 @@ namespace NetFinal.DataManagers.Movie
                                 }
                                 tableGenresUpdated.Write();
                                 Console.WriteLine("How many genres in the list do you want to add to updated field?(All previous genres have been cleared)");
-                                var genreAmount = menu.ValueGetter();
+                                var genreAmount = menu.IntValueGetter();
                                 for (int i = 0; i < genreAmount; i++)
                                 {
                                     Console.WriteLine("Which genres are in the film?");
@@ -258,19 +259,41 @@ namespace NetFinal.DataManagers.Movie
 
         public void SearchMovie()
         {
-            using (var db = new MovieContext())
+            try
             {
-                Console.WriteLine("What is the title of the movie you want to look for?");
-                var title = Console.ReadLine();
-                var moviesFound = db.Movies.Where(c => c.Title.ToLower().Contains(title.ToLower()));
+                Console.WriteLine("What Movie would you like to search for?");
+                string inputChoice = Console.ReadLine().ToLower();
+                List<DataModels.Movie> movie = new List<DataModels.Movie>();
+                List<MovieGenre> movieGenres = new List<MovieGenre>();
+                List<Genre> genres = new List<Genre>();
+                List<string> genresTogether = new List<string>();
+                using (var db = new MovieContext())
+                {
+                    movie = db.Movies.Where(c => c.Title.ToLower().Contains(inputChoice)).ToList();
+                    movieGenres = db.MovieGenres.ToList();
+                    genres = db.Genres.ToList();
+                }
                 var table = new ConsoleTable("ID", "Title", "Year Released","");
                 table.Options.EnableCount = false;
-                foreach (var x in moviesFound)
+                foreach (var x in movie)
                 {
-                    table.AddRow(x.MovieId, x.Title, x.ReleaseDate, x.MovieGenres);
+                    List<string?> genresAppened = new List<string?>();
+                    var tempGenres = movieGenres.Where(c => c.Movie == x);
+                    foreach (var y in tempGenres)
+                    {
+                        genresTogether.Add(y.Genre.Name);
+                    }
+                    table.AddRow(x.MovieId, x.Title, x.ReleaseDate,string.Join("|",genresTogether)); 
+                    genresTogether.Clear();
                 }
                 table.Write();
             }
+            catch (Exception )
+            {
+                Console.WriteLine("Unable to access Movie Database");
+                throw;
+            }
+            
             
         }
 
