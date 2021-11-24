@@ -57,12 +57,21 @@ namespace NetFinal
                     case 6:
                         userManager.ShowUserRatings();
                         break;
-                    default:
-                        Console.WriteLine("Sorry this isn't a choice");
+                    case 7:
+                        Console.WriteLine("Thank you for using the Application!");
                         break;
-                    
+                    default:
+                        
+                        Console.WriteLine("Sorry that isn't a choice!");
+                        break;
+                        Console.ReadLine();
                 }
-                
+
+                if (option != 7)
+                {
+                    Console.WriteLine("Press enter to Continue...");
+                    Console.ReadLine();
+                }
             }
 
         }
