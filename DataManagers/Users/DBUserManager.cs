@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Channels;
 using ConsoleTables;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,7 @@ namespace NetFinal.DataManagers.Users
             Menu menu = new Menu();
             try
             {
+                var user = new User();
                 using (var db = new MovieContext())
                 {
                     Console.WriteLine("What is your age?");
@@ -72,9 +74,9 @@ namespace NetFinal.DataManagers.Users
                     temp.Occupation = occupationForUser;
                     db.Users.Add(temp);
                     db.SaveChanges();
-                    var user = db.Users.FirstOrDefault(x => x == temp);
-                    return user;
+                    user = db.Users.FirstOrDefault(x => x == temp);
                 }
+                return user;
             }
             catch (Exception e)
             {
@@ -145,70 +147,85 @@ namespace NetFinal.DataManagers.Users
         }
         public override void AddUserRating()
         {
+            /*still need to figure out how to make this work
+            says can't manually add Key for occupations although 
+            occupations isn't being accessed here (Last thing to add before piecing main together)*/
             try
             {
+                List<DataModels.Movie> movies = new List<DataModels.Movie>();
+                List<UserMovie> userMovies = new List<UserMovie>();
+                List<User> users = new List<User>();
+                List<Occupation> occupations = new List<Occupation>();
+                Menu menu = new Menu();
+                var tempUser = new User();
+                var movieChoices = new ConsoleTable("Option","Movie");
+                int currentChoice = 1;
+                movieChoices.Options.EnableCount = false;
                 using (var db = new MovieContext())
                 {
-                    Menu menu = new Menu();
-                    var movieTable = new ConsoleTable("Option","Movie Title");
-                    var option = 1;
-                    User user = new User();
-                    var userValid = "";
-                    Console.WriteLine("Are you already a user? (Y/N)");
-                    var alreadyUser = Console.ReadLine().ToLower().Substring(0,1);
-                    if (alreadyUser == "y")
+                    movies = db.Movies.ToList();
+                    userMovies = db.UserMovies.ToList();
+                    users = db.Users.ToList();
+                    occupations = db.Occupations.ToList();
+                }
+                Console.WriteLine("Are you already a user?(Y/N)");
+                var alreadyUser = Console.ReadLine().Substring(0, 1).ToUpper();
+                if (alreadyUser == "Y")
+                {
+                    tempUser = GetUser();
+                }
+                if (tempUser == null || alreadyUser == "N")
+                {
+                    tempUser = AddUser();
+                }
+                Console.WriteLine("What movie would you like to rate?");
+                var search = Console.ReadLine();
+                var fiteredMovies = movies.Where(t => t.Title.ToLower().Contains(search.ToLower()));
+                while (fiteredMovies.Count() == 0)
+                {
+                    Console.WriteLine("There isn't a movie with that title enter a new search");
+                    search = Console.ReadLine();
+                    fiteredMovies = movies.Where(t => t.Title.ToLower().Contains(search.ToLower()));
+                }
+                foreach (var x in fiteredMovies)
+                {
+                    movieChoices.AddRow(currentChoice, x.Title);
+                    currentChoice++;
+                }
+                movieChoices.Write();
+                Console.WriteLine("Which option would you like to rate?");
+                int decision = menu.IntValueGetter();
+                while (decision > fiteredMovies.Count() || decision < 0)
+                {
+                    Console.WriteLine("Sorry that isn't a choice (Enter a new one)");
+                    decision = menu.IntValueGetter();
+                }
+                var moviePicked = fiteredMovies.ToList()[decision - 1];
+                Console.WriteLine($"What rating would you like to give {moviePicked.Title} (1-5)? ");
+                var rating = menu.IntValueGetter();
+                while (rating > 5 || rating <= 0)
+                {
+                    if (rating > 5)
                     {
-                        user = GetUser();
+                        Console.WriteLine("If you really liked the movie just put 5");
                     }
-                    if (alreadyUser =="n" || user == null)
+                    else
                     {
-                        if (user == null)
-                        {
-                            Console.WriteLine("Sorry your user wasn't found\nYou will need to make a new one"); 
-                        }
-                        user = AddUser();
-                        
+                        Console.WriteLine("If you hated the movie just put 1");
                     }
-                    Console.WriteLine("What film do you want to add a rating for?");
-                    var title = Console.ReadLine();
-                    var selectedMovies = db.Movies.Where(c => c.Title.ToLower().Contains(title.ToLower()));
-                    while (selectedMovies.Count() == 0)
-                    {
-                        Console.WriteLine("Sorry nothing came up for that search\nEnter a new Film Title");
-                        title = Console.ReadLine();
-                        selectedMovies = db.Movies.Where(c => c.Title.ToLower().Contains(title.ToLower()));
-                    }
-                    foreach (var x in selectedMovies)
-                    {
-                        movieTable.AddRow(option, x.Title);
-                        option++;
-                    }
-                    movieTable.Write();
-                    Console.WriteLine("Which option do you want to add a rating for?");
-                    option = menu.IntValueGetter();
-                    while (selectedMovies.ToList().Count < option || option <= 0)
-                    {
-                        Console.WriteLine("Sorry that isn't an option\nSelect a new Option");
-                        option = menu.IntValueGetter();
-                    }
-                    var selectedFilm = selectedMovies.ToList()[option - 1];
-                    Console.WriteLine($"You have selected {selectedFilm.Title}");
-                    Console.WriteLine("What is the rating you want to give this film? 1-5");
-                    var rating = menu.IntValueGetter();
-                    while (rating > 5 || rating <= 0)
-                    {
-                        Console.WriteLine("Sorry only 1-5 is allowed\nEnter a new rating");
-                        rating = menu.IntValueGetter();
-                    }
-                    DateTime ratedAt = DateTime.Now;
-                    UserMovie temp = new UserMovie();
-                    temp.Movie = selectedFilm;
-                    temp.Rating = rating;
-                    temp.RatedAt = ratedAt;
-                    temp.User = user;
-                    db.UserMovies.Add(temp);
+                    Console.WriteLine("Enter again");
+                    rating = menu.IntValueGetter();
+                }
+                var ratedAt = DateTime.Now;
+                UserMovie tempUserMovies = new UserMovie();
+                tempUserMovies.Rating = rating;
+                tempUserMovies.RatedAt = ratedAt;
+                tempUserMovies.User = tempUser;
+                tempUserMovies.Movie = moviePicked;
+                using (var db = new MovieContext())
+                {
+                    db.UserMovies.Add(tempUserMovies);
                     db.SaveChanges();
-
                 }
             }
             catch (Exception)
@@ -216,13 +233,35 @@ namespace NetFinal.DataManagers.Users
                 Console.WriteLine("Sorry couldn't access Movie Database");
                 throw;
             }
-        }
+        } 
 
         public override void ShowUserRatings()
         {
-            /*still need to figure out how to make this work
-            says can't manually add Key for occupations although 
-            occupations isn't being accessed here (Last thing to add before piecing main together)*/
+
+            try
+            {
+                List<Occupation> occupations;
+                List<UserMovie> userMovies = new List<UserMovie>();
+                using (var db = new MovieContext())
+                {
+                    var userRatings = db.UserMovies.Include(c => c.Movie).Include(c => c.User).OrderByDescending(c=>c.Rating);
+                    var userRatingsTable = new ConsoleTable("Movie","Rating","Occupation");
+                    userRatingsTable.Options.EnableCount = false;
+                    occupations = db.Occupations.ToList();
+                    foreach (var x in occupations)
+                    {
+                        var movie = userRatings.FirstOrDefault(c => c.User.Occupation == x);
+                        userRatingsTable.AddRow(movie?.Movie.Title == null ? "No Movie Info": movie.Movie.Title, movie?.Rating == null ? "N/A": movie.Rating, x.Name);
+                    }
+                    userRatingsTable.Write();
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+            
         }
 
         public override void AddOccupation()
@@ -249,7 +288,6 @@ namespace NetFinal.DataManagers.Users
                         table.AddRow(x.Id, x.Name);
                     }
                     table.Write();
-                    
                 }
             }
             catch (Exception e)
