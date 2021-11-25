@@ -16,7 +16,7 @@ namespace NetFinal.DataManagers.Users
 {
     public class DBUserManager : IUserManager
     {
-        public override User? AddUser()
+        public override User AddUser()
         {
             Menu menu = new Menu();
             try
@@ -147,9 +147,6 @@ namespace NetFinal.DataManagers.Users
         }
         public override void AddUserRating()
         {
-            /*still need to figure out how to make this work
-            says can't manually add Key for occupations although 
-            occupations isn't being accessed here (Last thing to add before piecing main together)*/
             try
             {
                 List<DataModels.Movie> movies = new List<DataModels.Movie>();
@@ -224,7 +221,7 @@ namespace NetFinal.DataManagers.Users
                 tempUserMovies.Movie = moviePicked;
                 using (var db = new MovieContext())
                 {
-                    db.UserMovies.Add(tempUserMovies);
+                    db.UserMovies.Update(tempUserMovies);
                     db.SaveChanges();
                 }
             }

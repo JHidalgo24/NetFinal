@@ -148,61 +148,56 @@ namespace NetFinal.DataManagers.Movie
                                 db.Remove(x);
                             }
                         }
-                        Console.WriteLine("Do you want to edit title?");
-                        choice = Console.ReadLine();
-                        if (choice.ToLower().Substring(0,1) == "y")
+                        
+                        Console.WriteLine("What is the title of the film?");
+                        var title = Console.ReadLine();
+                        Console.WriteLine("What year was the movie made? ex.(1979)");
+                        int year = menu.IntValueGetter();
+                        DateTime yearFormatted = DateTime.Parse($"01-01-{year}");
+                        title = title + " (" + year + ")";
+                        if (db.Movies.Any(c=> c.Title.ToLower() == title.ToLower()))
                         {
-                            Console.WriteLine("What is the title of the film?");
-                            var title = Console.ReadLine();
+                            Console.WriteLine("You can't add that, that film already exists sorry");
+                            Console.WriteLine("Enter a new title");
+                            title = Console.ReadLine();
                             Console.WriteLine("What year was the movie made? ex.(1979)");
-                            int year = menu.IntValueGetter();
-                            DateTime yearFormatted = DateTime.Parse($"01-01-{year}");
+                            year = menu.IntValueGetter();
+                            yearFormatted = DateTime.Parse($"01-01-{year}");
                             title = title + " (" + year + ")";
-                            if (db.Movies.Any(c=> c.Title.ToLower() == title.ToLower()))
+                        }
+                        else
+                        {
+                            selectedFilm.Title = title;
+                            selectedFilm.ReleaseDate = yearFormatted;
+                            db.Movies.Update(selectedFilm);
+                            db.SaveChanges();
+                            var tableGenresUpdated = new ConsoleTable("ID", "Genre");
+                            tableGenresUpdated.Options.EnableCount = false;
+                            foreach (var x in db.Genres)
                             {
-                                Console.WriteLine("You can't add that, that film already exists sorry");
-                                Console.WriteLine("Enter a new title");
-                                title = Console.ReadLine();
-                                Console.WriteLine("What year was the movie made? ex.(1979)");
-                                year = menu.IntValueGetter();
-                                yearFormatted = DateTime.Parse($"01-01-{year}");
-                                title = title + " (" + year + ")";
+                                tableGenresUpdated.AddRow(x.GenreId, x.Name);
                             }
-                            else
+                            tableGenresUpdated.Write();
+                            Console.WriteLine("How many genres in the list do you want to add to updated field?(All previous genres have been cleared)");
+                            var genreAmount = menu.IntValueGetter();
+                            for (int i = 0; i < genreAmount; i++)
                             {
-                                selectedFilm.Title = title;
-                                selectedFilm.ReleaseDate = yearFormatted;
-                                db.Movies.Update(selectedFilm);
+                                Console.WriteLine("Which genres are in the film?");
+                                string genrePicked = Console.ReadLine();
+                                while (!db.Genres.Any(c=> c.Name.ToLower() == genrePicked.ToLower()))
+                                {
+                                    Console.WriteLine("Sorry that is not a genre in the List Select a new one");
+                                    genrePicked = Console.ReadLine();
+                                }
+                                var tempGenre = db.Genres.FirstOrDefault(c => c.Name.ToLower() == genrePicked.ToLower());
+                                MovieGenre tempMG = new MovieGenre();
+                                tempMG.Genre = tempGenre;
+                                tempMG.Movie = selectedFilm;
+                                db.MovieGenres.Add(tempMG);
                                 db.SaveChanges();
-                                var tableGenresUpdated = new ConsoleTable("ID", "Genre");
-                                tableGenresUpdated.Options.EnableCount = false;
-                                foreach (var x in db.Genres)
-                                {
-                                    tableGenresUpdated.AddRow(x.GenreId, x.Name);
-                                }
-                                tableGenresUpdated.Write();
-                                Console.WriteLine("How many genres in the list do you want to add to updated field?(All previous genres have been cleared)");
-                                var genreAmount = menu.IntValueGetter();
-                                for (int i = 0; i < genreAmount; i++)
-                                {
-                                    Console.WriteLine("Which genres are in the film?");
-                                    string genrePicked = Console.ReadLine();
-                                    while (!db.Genres.Any(c=> c.Name.ToLower() == genrePicked.ToLower()))
-                                    {
-                                        Console.WriteLine("Sorry that is not a genre in the List Select a new one");
-                                        genrePicked = Console.ReadLine();
-                                    }
-                                    var tempGenre = db.Genres.FirstOrDefault(c => c.Name.ToLower() == genrePicked.ToLower());
-                                    MovieGenre tempMG = new MovieGenre();
-                                    tempMG.Genre = tempGenre;
-                                    tempMG.Movie = selectedFilm;
-                                    db.MovieGenres.Add(tempMG);
-                                    db.SaveChanges();
-                                }
-                                Console.WriteLine($"You have now changed the film to {selectedFilm.Title} from {previousTitle}");
-
-
                             }
+                            Console.WriteLine($"You have now changed the film to {selectedFilm.Title} from {previousTitle}");
+                                
                             
                         }
 
@@ -255,8 +250,6 @@ namespace NetFinal.DataManagers.Movie
                 throw;
             }
         }
-        
-
         public void SearchMovie()
         {
             try

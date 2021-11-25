@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NetFinal.DataModels
 {
@@ -7,7 +8,6 @@ namespace NetFinal.DataModels
         public long Id { get; set; }
         public long Rating {get;set;}
         public DateTime RatedAt { get; set; }
-
         public virtual User User { get; set; }
         public virtual Movie Movie { get; set; }
 
