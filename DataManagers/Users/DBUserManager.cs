@@ -316,5 +316,37 @@ namespace NetFinal.DataManagers.Users
                 throw;
             }
         }
+
+        public override void UserRatingSearch()
+        {
+            try
+            {
+                using (var db = new MovieContext())
+                {
+                    var user = GetUser();
+                    var table = new ConsoleTable("User","Title","Rating");
+                    table.Options.EnableCount = false;
+                    if (user == null)
+                    {
+                        Console.WriteLine("Sorry that user wasn't found");
+                    }
+                    else
+                    {
+                        var userMovies = db.UserMovies.Where(t => t.User == user).Include(t => t.Movie)
+                            .Include(t => t.User);
+                        foreach (var x in userMovies)
+                        {
+                            table.AddRow($"UserID:{x.User.Id}", x.Movie.Title, x.Rating);
+                        }
+                        table.Write();
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("Unable to access Movie Databse");
+                throw;
+            }
+        }
     }
 }

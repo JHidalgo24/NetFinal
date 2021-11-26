@@ -51,23 +51,23 @@ namespace NetFinal
                         userManager.AddUser();
                         break;
                     case 5:
-                        userManager.AddUserRating();//this is still broken
-                                                    //Will attempt to fix later
+                        userManager.AddUserRating();
                         break;
                     case 6:
                         userManager.ShowUserRatings();
                         break;
                     case 7:
+                        userManager.UserRatingSearch();
+                        break;
+                    case 8:
                         Console.WriteLine("Thank you for using the Application!");
                         break;
                     default:
-                        
                         Console.WriteLine("Sorry that isn't a choice!");
                         break;
-                        Console.ReadLine();
                 }
 
-                if (option != 7)
+                if (option != 8)
                 {
                     Console.WriteLine("Press enter to Continue...");
                     Console.ReadLine();

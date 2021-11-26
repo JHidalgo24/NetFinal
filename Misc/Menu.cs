@@ -9,7 +9,7 @@ namespace NetFinal.Misc
         {
             var table = new ConsoleTable("Choice","Option");
             table.AddRow(1, "Add Movie").AddRow(2, "Update Movie")
-                .AddRow(3, "Search Movie/Display All").AddRow(4,"Add User and Occupation").AddRow(5,"Add Rating to Movie").AddRow(6,"List Top Movie").AddRow(7,"Exit");
+                .AddRow(3, "Search Movie/Display All").AddRow(4,"Add User and Occupation").AddRow(5,"Add Rating to Movie").AddRow(6,"List Top Movie").AddRow(7,"Look for User Ratings").AddRow(8,"Exit");
             table.Options.EnableCount = false;
             table.Write();
 

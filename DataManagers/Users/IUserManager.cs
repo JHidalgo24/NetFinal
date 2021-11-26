@@ -10,6 +10,7 @@ namespace NetFinal.DataManagers.Users
         public abstract void ShowUserRatings();
         public abstract void AddOccupation();
         public abstract void DisplayUsers();
-        
+        public abstract void UserRatingSearch();
+
     }
 }
