@@ -20,14 +20,17 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Context\appsettings.json" />
-      <EmbeddedResource Include=".gitignore">
+      <EmbeddedResource Include="miscfiles\.gitignore">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </EmbeddedResource>
+      <None Remove="Context\appsettings.json" />
       <EmbeddedResource Include="Context\appsettings.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </EmbeddedResource>
       <None Remove="Misc\.gitignore" />
+      <None Include="..\..\..\.nuget\packages\nlog.config\4.7.12\contentFiles\any\any\NLog.config">
+        <Link>miscfiles\NLog.config</Link>
+      </None>
     </ItemGroup>
 
     <ItemGroup>

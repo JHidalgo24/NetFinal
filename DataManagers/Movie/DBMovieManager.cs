@@ -1,24 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
-using System.Threading.Tasks.Dataflow;
 using ConsoleTables;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using NetFinal.Context;
 using NetFinal.DataManagers.Users;
 using NetFinal.DataModels;
-using NetFinal.Migrations;
 using NetFinal.Misc;
+using NLog;
 
 namespace NetFinal.DataManagers.Movie
 {
     public class DBMovieManager: IMovieManager
     {
+        Logger logger = LogManager.GetCurrentClassLogger();
         public void AddMovie()
         {
+            
             Menu menu = new Menu();
             try
             {
@@ -86,17 +83,17 @@ namespace NetFinal.DataManagers.Movie
                             tempMG.Movie = movieInputted;
                             db.MovieGenres.Add(tempMG);
                             db.SaveChanges();
+                            logger.Debug($"User added Movie:{title}");
                         }
                     }
                 }
             }
-            catch (Exception )
+            catch (Exception e)
             {
-                Console.WriteLine("Couldn't connect to Movie Database");
+                logger.Debug($"DB failed to add movie program errored out\nException Type:{e}");
                 throw;
             }
         }
-
         public void EditMovie()
         {
             Menu menu = new Menu();
@@ -196,9 +193,8 @@ namespace NetFinal.DataManagers.Movie
                                 db.MovieGenres.Add(tempMG);
                                 db.SaveChanges();
                             }
-                            Console.WriteLine($"You have now changed the film to {selectedFilm.Title} from {previousTitle}");
-                                
-                            
+                            logger.Debug($"User has now changed the film to {selectedFilm.Title} from {previousTitle}(Previous Reviews under this title will now be changed to new title)");
+
                         }
 
                     }
@@ -208,12 +204,11 @@ namespace NetFinal.DataManagers.Movie
             }
             catch (Exception e)
             {
-                Console.WriteLine("Couldn't access Movie Database");
+                logger.Debug($"DB failed to edit movie program errored out\nException Type:{e}");
                 throw;
             }
             
         }
-
         public void DisplayAll()
         {
             List<DataModels.Movie> movie = new List<DataModels.Movie>();
@@ -246,7 +241,7 @@ namespace NetFinal.DataManagers.Movie
             }
             catch (Exception e)
             {
-                Console.WriteLine("Unable to connect to Movie Database");
+                logger.Debug($"DB failed to Display All Movies program errored out\nException Type:{e}");
                 throw;
             }
         }
@@ -256,6 +251,7 @@ namespace NetFinal.DataManagers.Movie
             {
                 Console.WriteLine("What Movie would you like to search for?");
                 string inputChoice = Console.ReadLine().ToLower();
+                logger.Debug($"User Chose to display Movie:{inputChoice}");
                 List<DataModels.Movie> movie = new List<DataModels.Movie>();
                 List<MovieGenre> movieGenres = new List<MovieGenre>();
                 List<Genre> genres = new List<Genre>();
@@ -281,15 +277,14 @@ namespace NetFinal.DataManagers.Movie
                 }
                 table.Write();
             }
-            catch (Exception )
+            catch (Exception e)
             {
-                Console.WriteLine("Unable to access Movie Database");
+                logger.Debug($"DB failed to add user program errored out\nException Type:{e}");
                 throw;
             }
             
             
         }
-
         public void AddGenre()
         {
             try
@@ -309,12 +304,13 @@ namespace NetFinal.DataManagers.Movie
                         temp.Name = genre;
                         db.Genres.Add(temp);
                         db.SaveChanges();
+                        logger.Debug($"User added Genre:{genre}");
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine("Couldn't load Genre Database");
+                logger.Debug($"DB failed to add genre program errored out\nException Type:{e}");
             }
         }
         

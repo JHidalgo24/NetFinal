@@ -11,11 +11,13 @@ using NetFinal.Context;
 using NetFinal.DataManagers.Movie;
 using NetFinal.DataModels;
 using NetFinal.Misc;
+using NLog;
 
 namespace NetFinal.DataManagers.Users
 {
     public class DBUserManager : IUserManager
     {
+        Logger logger = LogManager.GetCurrentClassLogger();
         public override User AddUser()
         {
             Menu menu = new Menu();
@@ -76,11 +78,12 @@ namespace NetFinal.DataManagers.Users
                     db.SaveChanges();
                     user = db.Users.FirstOrDefault(x => x == temp);
                 }
+                logger.Debug($"User is added user UserID:{user.Id}");
                 return user;
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                logger.Debug($"DB failed to add user program errored out\nException Type:{e}");
                 throw;
             }
         }
@@ -131,16 +134,20 @@ namespace NetFinal.DataManagers.Users
                     var user = db.Users.FirstOrDefault(c => c.Age == age && c.Gender == gender && c.Occupation == chosenOc && c.ZipCode == zipcode);
                     if (user == null)
                     {
+                        logger.Debug($"User not found for user Parameters UserAge:{age} UserGender:{gender} UserOccupation:{chosenOc.Name}");
                         Console.WriteLine("Sorry unable to find user!");
                         return null;
                     }
                     else
+                    {
+                        logger.Debug($"User Found with userID {user.Id}");
                         return user;
+                    }
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                logger.Debug($"DB failed to get user program errored out\nException Type:{e}");
                 throw;
             }
             
@@ -224,10 +231,11 @@ namespace NetFinal.DataManagers.Users
                     db.UserMovies.Update(tempUserMovies);
                     db.SaveChanges();
                 }
+                logger.Debug($"User succesfully added user rating UserRating:{rating} UserMovie:{moviePicked.Title}");
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine("Sorry couldn't access Movie Database");
+                logger.Debug($"DB failed to add user rating program errored out\nException Type:{e}");
                 throw;
             }
         } 
@@ -255,7 +263,7 @@ namespace NetFinal.DataManagers.Users
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                logger.Debug($"DB failed to Show user ratings Program errored out\nException Type:{e}");
                 throw;
             }
             
@@ -278,6 +286,7 @@ namespace NetFinal.DataManagers.Users
                     temp.Name = occupationName;
                     db.Occupations.Add(temp);
                     db.SaveChanges();
+                    logger.Debug($"User Added new Ocupation:{occupationName}");
                     var table = new ConsoleTable("ID","Occupation Name");
                     table.Options.EnableCount = false;
                     foreach (var x in db.Occupations)
@@ -289,7 +298,7 @@ namespace NetFinal.DataManagers.Users
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                logger.Debug($"DB failed to add occupation program errored out\nException Type:{e}");
                 throw;
             }
         }
@@ -312,7 +321,7 @@ namespace NetFinal.DataManagers.Users
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                logger.Debug($"DB failed to display user program errored out\nException Type:{e}");
                 throw;
             }
         }
@@ -342,9 +351,9 @@ namespace NetFinal.DataManagers.Users
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                Console.WriteLine("Unable to access Movie Databse");
+                logger.Debug($"DB failed to add user program errored out\nException Type:{e}");
                 throw;
             }
         }
