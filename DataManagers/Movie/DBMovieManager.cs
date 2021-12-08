@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ConsoleTables;
+using Microsoft.EntityFrameworkCore;
 using NetFinal.Context;
 using NetFinal.DataManagers.Users;
 using NetFinal.DataModels;
@@ -10,16 +11,16 @@ using NLog;
 
 namespace NetFinal.DataManagers.Movie
 {
-    public class DBMovieManager: IMovieManager
+    public class DBMovieManager : IMovieManager
     {
         Logger logger = LogManager.GetCurrentClassLogger();
         public void AddMovie()
         {
-            
+
             Menu menu = new Menu();
             try
             {
-                
+
                 using (var db = new MovieContext())
                 {
                     Console.WriteLine("What is the title of the film?");
@@ -29,7 +30,7 @@ namespace NetFinal.DataManagers.Movie
                     DateTime yearFormatted = DateTime.Parse($"01-01-{year}");
                     title = title + " (" + year + ")";
                     var movies = db.Movies.ToList();
-                    if (movies.Any(c=> c.Title.ToLower() == title.ToLower()))
+                    if (movies.Any(c => c.Title.ToLower() == title.ToLower()))
                     {
                         Console.WriteLine($"Sorry your Title of: {title} is already in the database");
                     }
@@ -47,10 +48,11 @@ namespace NetFinal.DataManagers.Movie
                         {
                             tableGenres.AddRow(x.GenreId, x.Name);
                         }
+
                         tableGenres.Write();
                         Console.WriteLine("Do you want to add a genre that is not in the list? (Y/N)");
                         string z = Console.ReadLine();
-                        while (z.ToLower().Substring(0,1) == "y")
+                        while (z.ToLower().Substring(0, 1) == "y")
                         {
                             AddGenre();
                             Console.WriteLine("Is there another genre you want to add to the list?(Y/N)");
@@ -63,6 +65,7 @@ namespace NetFinal.DataManagers.Movie
                         {
                             tableGenresUpdated.AddRow(x.GenreId, x.Name);
                         }
+
                         tableGenresUpdated.Write();
                         var movieInputted = db.Movies.ToList().FirstOrDefault(c => c.Title == title);
                         Console.WriteLine("How many of the genres in here are in the film?");
@@ -72,11 +75,12 @@ namespace NetFinal.DataManagers.Movie
                             Console.WriteLine("Which genres are in the film?\n" +
                                               "Include the ones you added to the list if any");
                             string genrePicked = Console.ReadLine();
-                            while (!db.Genres.Any(c=> c.Name.ToLower() == genrePicked.ToLower()))
+                            while (!db.Genres.Any(c => c.Name.ToLower() == genrePicked.ToLower()))
                             {
                                 Console.WriteLine("Sorry that is not a genre in the List Select a new one");
                                 genrePicked = Console.ReadLine();
                             }
+
                             var tempGenre = db.Genres.FirstOrDefault(c => c.Name.ToLower() == genrePicked.ToLower());
                             MovieGenre tempMG = new MovieGenre();
                             tempMG.Genre = tempGenre;
@@ -104,7 +108,7 @@ namespace NetFinal.DataManagers.Movie
                     Console.WriteLine("Do you want to see all the movies (Y/N)");
                     var previousTitle = "";
                     var choice = Console.ReadLine();
-                    if (choice.ToLower().Substring(0,1) == "y")
+                    if (choice.ToLower().Substring(0, 1) == "y")
                     {
                         DisplayAll();
                     }
@@ -118,16 +122,18 @@ namespace NetFinal.DataManagers.Movie
                     }
                     else
                     {
-                        var table = new ConsoleTable("Option","ID","Title");
+                        var table = new ConsoleTable("Option", "ID", "Title");
                         table.Options.EnableCount = false;
                         var num = 1;
                         foreach (var x in movies)
                         {
-                            table.AddRow(num,x.MovieId, x.Title);
+                            table.AddRow(num, x.MovieId, x.Title);
                             num++;
                         }
+
                         table.Write();
-                        Console.WriteLine($"Out of the {movies.Count()} Movies in the table which Movie do you want(Select Option)?");
+                        Console.WriteLine(
+                            $"Out of the {movies.Count()} Movies in the table which Movie do you want(Select Option)?");
                         var option = menu.IntValueGetter();
                         DataModels.Movie selectedFilm = new DataModels.Movie();
                         if (movies.Count() < option)
@@ -145,14 +151,14 @@ namespace NetFinal.DataManagers.Movie
                                 db.Remove(x);
                             }
                         }
-                        
+
                         Console.WriteLine("What is the title of the film?");
                         var title = Console.ReadLine();
                         Console.WriteLine("What year was the movie made? ex.(1979)");
                         int year = menu.IntValueGetter();
                         DateTime yearFormatted = DateTime.Parse($"01-01-{year}");
                         title = title + " (" + year + ")";
-                        if (db.Movies.Any(c=> c.Title.ToLower() == title.ToLower()))
+                        if (db.Movies.Any(c => c.Title.ToLower() == title.ToLower()))
                         {
                             Console.WriteLine("You can't add that, that film already exists sorry");
                             Console.WriteLine("Enter a new title");
@@ -174,32 +180,38 @@ namespace NetFinal.DataManagers.Movie
                             {
                                 tableGenresUpdated.AddRow(x.GenreId, x.Name);
                             }
+
                             tableGenresUpdated.Write();
-                            Console.WriteLine("How many genres in the list do you want to add to updated field?(All previous genres have been cleared)");
+                            Console.WriteLine(
+                                "How many genres in the list do you want to add to updated field?(All previous genres have been cleared)");
                             var genreAmount = menu.IntValueGetter();
                             for (int i = 0; i < genreAmount; i++)
                             {
                                 Console.WriteLine("Which genres are in the film?");
                                 string genrePicked = Console.ReadLine();
-                                while (!db.Genres.Any(c=> c.Name.ToLower() == genrePicked.ToLower()))
+                                while (!db.Genres.Any(c => c.Name.ToLower() == genrePicked.ToLower()))
                                 {
                                     Console.WriteLine("Sorry that is not a genre in the List Select a new one");
                                     genrePicked = Console.ReadLine();
                                 }
-                                var tempGenre = db.Genres.FirstOrDefault(c => c.Name.ToLower() == genrePicked.ToLower());
+
+                                var tempGenre =
+                                    db.Genres.FirstOrDefault(c => c.Name.ToLower() == genrePicked.ToLower());
                                 MovieGenre tempMG = new MovieGenre();
                                 tempMG.Genre = tempGenre;
                                 tempMG.Movie = selectedFilm;
                                 db.MovieGenres.Add(tempMG);
                                 db.SaveChanges();
                             }
-                            logger.Debug($"User has now changed the film to {selectedFilm.Title} from {previousTitle}(Previous Reviews under this title will now be changed to new title)");
+
+                            logger.Debug(
+                                $"User has now changed the film to {selectedFilm.Title} from {previousTitle}(Previous Reviews under this title will now be changed to new title)");
 
                         }
 
                     }
-                    
-                        
+
+
                 }
             }
             catch (Exception e)
@@ -207,7 +219,7 @@ namespace NetFinal.DataManagers.Movie
                 logger.Debug($"DB failed to edit movie program errored out\nException Type:{e}");
                 throw;
             }
-            
+
         }
         public void DisplayAll()
         {
@@ -222,8 +234,9 @@ namespace NetFinal.DataManagers.Movie
                     movieGenres = db.MovieGenres.ToList();
                     genres = db.Genres.ToList();
                 }
+
                 List<string> genresTogether = new List<string>();
-                var movieTable = new ConsoleTable("Id","Title","Year","Genres");
+                var movieTable = new ConsoleTable("Id", "Title", "Year", "Genres");
                 movieTable.Options.EnableCount = false;
                 List<string?> listOfGenres = new List<string?>();
                 foreach (var x in movie)
@@ -234,9 +247,11 @@ namespace NetFinal.DataManagers.Movie
                     {
                         genresTogether.Add(y.Genre.Name);
                     }
-                    movieTable.AddRow(x.MovieId, x.Title, x.ReleaseDate,string.Join("|",genresTogether)); 
+
+                    movieTable.AddRow(x.MovieId, x.Title, x.ReleaseDate, string.Join("|", genresTogether));
                     genresTogether.Clear();
                 }
+
                 movieTable.Write();
             }
             catch (Exception e)
@@ -262,7 +277,8 @@ namespace NetFinal.DataManagers.Movie
                     movieGenres = db.MovieGenres.ToList();
                     genres = db.Genres.ToList();
                 }
-                var table = new ConsoleTable("ID", "Title", "Year Released","");
+
+                var table = new ConsoleTable("ID", "Title", "Year Released", "");
                 table.Options.EnableCount = false;
                 foreach (var x in movie)
                 {
@@ -272,9 +288,11 @@ namespace NetFinal.DataManagers.Movie
                     {
                         genresTogether.Add(y.Genre.Name);
                     }
-                    table.AddRow(x.MovieId, x.Title, x.ReleaseDate,string.Join("|",genresTogether)); 
+
+                    table.AddRow(x.MovieId, x.Title, x.ReleaseDate, string.Join("|", genresTogether));
                     genresTogether.Clear();
                 }
+
                 table.Write();
             }
             catch (Exception e)
@@ -282,8 +300,8 @@ namespace NetFinal.DataManagers.Movie
                 logger.Debug($"DB failed to add user program errored out\nException Type:{e}");
                 throw;
             }
-            
-            
+
+
         }
         public void AddGenre()
         {
@@ -296,7 +314,8 @@ namespace NetFinal.DataManagers.Movie
                     string genre = Console.ReadLine();
                     if (genre != null && (genresList.Any(c => c.Name.ToLower() == genre.ToLower()) || genre.Length < 2))
                     {
-                        Console.WriteLine($"Sorry your input of {genre} already matches a genre in DB or is not long enough");
+                        Console.WriteLine(
+                            $"Sorry your input of {genre} already matches a genre in DB or is not long enough");
                     }
                     else
                     {
@@ -313,6 +332,53 @@ namespace NetFinal.DataManagers.Movie
                 logger.Debug($"DB failed to add genre program errored out\nException Type:{e}");
             }
         }
+        public void DisplayMoviesWithGenre()
+        {
+            try
+            {
+                using (var db = new MovieContext())
+                {
+                    var genresList = db.Genres.ToList();
+                    var table = new ConsoleTable("ID", "Genre");
+                    table.Options.EnableCount = false;
+                    foreach (var x in genresList)
+                    {
+                        table.AddRow(x.GenreId, x.Name);
+                    }
+
+                    table.Write();
+                }
+                Console.WriteLine("What genre would you like to Display the movies for");
+                string inputChoice = Console.ReadLine().ToLower();
+                using (var db = new MovieContext())
+                {
+                    var movieGenres = db.MovieGenres.ToList();
+                    var movies = db.Movies.ToList();
+                    var genre = db.Genres.ToList();
+                    var table = new ConsoleTable("ID", "Title", "Year Released", "");
+                    table.Options.EnableCount = false;
+                    var tempGenres = movieGenres.Where(c => c.Genre.Name.ToLower() == inputChoice);
+                    foreach (var x in tempGenres)
+                    {
+                        var tempMovies = movies.Where(c => c == x.Movie);
+                        foreach (var y in tempMovies)
+                        {
+                            table.AddRow(y.MovieId, y.Title, y.ReleaseDate, x.Genre.Name);
+                        }
+                    }
+
+                    table.Write();
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
+        
+        
         
     }
 }

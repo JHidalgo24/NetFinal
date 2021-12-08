@@ -23,7 +23,6 @@ namespace NetFinal
                 switch (option)
                 {
                     case 1:
-                        
                         movieManager.AddMovie();
                         break;
                     case 2:
@@ -62,6 +61,10 @@ namespace NetFinal
                         userManager.UserRatingSearch();
                         break;
                     case 8:
+                        movieManager.DisplayMoviesWithGenre();
+                        logger.Debug("User chose Display movies by genres");
+                        break;
+                    case 9:
                         Console.WriteLine("Thank you for using the Application!");
                         break;
                     default:
@@ -69,8 +72,7 @@ namespace NetFinal
                         Console.WriteLine("Sorry that isn't a choice!");
                         break;
                 }
-
-                if (option != 8)
+                if (option != 9)
                 {
                     Console.WriteLine("Press enter to Continue...");
                     Console.ReadLine();

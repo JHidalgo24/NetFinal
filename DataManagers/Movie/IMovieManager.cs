@@ -9,6 +9,8 @@
         public void DisplayAll();
 
         public void SearchMovie();
-        
+
+        public void DisplayMoviesWithGenre();
+
     }
 }
