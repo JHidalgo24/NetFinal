@@ -16,7 +16,7 @@ namespace NetFinal
             IMovieManager movieManager = new DBMovieManager();
             IUserManager userManager = new DBUserManager();
             int option = 0;
-            while (option != 8)
+            while (option != 9)
             {
                 menu.DisplayOptions();
                 option = menu.IntValueGetter();
@@ -26,7 +26,26 @@ namespace NetFinal
                         movieManager.AddMovie();
                         break;
                     case 2:
-                        movieManager.EditMovie();
+                        var tableTemp = new ConsoleTable("Option","Choice");
+                        tableTemp.Options.EnableCount = false;
+                        tableTemp.AddRow(1, "Edit Movie").AddRow(2, "Delete Movie");
+                        tableTemp.Write();
+                        var decision = menu.IntValueGetter();
+                        if (decision == 1)
+                        {
+                            logger.Debug("User wants to alter/Edit movie");
+                            movieManager.EditMovie();
+                        }
+                        else if (decision == 2)
+                        {
+                            logger.Debug("User wants to Delete movie");
+                            movieManager.DeleteMovie();
+                        }
+                        else
+                        {
+                            logger.Debug("User chose an invalid option for editing or deleting"); 
+                            Console.WriteLine("Invalid input");
+                        }
                         break;
                     case 3:
                         logger.Debug("User Chose option 3");

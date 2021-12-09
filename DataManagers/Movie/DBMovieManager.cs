@@ -98,6 +98,50 @@ namespace NetFinal.DataManagers.Movie
                 throw;
             }
         }
+        public void DeleteMovie()
+        {
+            try
+            {
+                Menu menu = new Menu();
+                using (var db = new MovieContext())
+                {
+                    Console.WriteLine("What movie do you want to delete?");
+                    string title = Console.ReadLine();
+                    var movies = db.Movies.Where(x=> x.Title.ToLower().Contains(title.ToLower()));
+                    var table = new ConsoleTable("Option", "Title", "Release Date");
+                    table.Options.EnableCount = false;
+                    int count = 1;
+                    if (title == " ")
+                    {
+                        Console.WriteLine("Be careful providing nothing in the search will return all movies (Enter new title or reenter a space to continue)");
+                        title = Console.ReadLine();
+                    }
+                    foreach (var x in movies)
+                    {
+                        table.AddRow(count, x.Title, x.ReleaseDate);
+                        count++;
+                    }
+                    table.Write();
+                    Console.WriteLine("Which movie option do you want to delete?");
+                    int moviePicked = menu.IntValueGetter();
+                    while (moviePicked > count-1 || moviePicked <= 0)
+                    {
+                        Console.WriteLine("That is not a valid option please try again");
+                        moviePicked = menu.IntValueGetter();
+                    }
+                    var movieToDelete = movies.ToList()[moviePicked-1];
+                    db.Movies.Remove(movieToDelete);
+                    db.SaveChanges();
+                    Console.WriteLine($"You have successfully deleted the movie: {movieToDelete.Title}");
+
+                } 
+            }
+            catch (Exception e)
+            {
+                logger.Debug($"DB failed to delete movie program errored out\nException Type:{e}");
+                throw;
+            }
+        }
         public void EditMovie()
         {
             Menu menu = new Menu();
@@ -380,5 +424,8 @@ namespace NetFinal.DataManagers.Movie
         
         
         
+
+
+
     }
 }

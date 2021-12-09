@@ -11,6 +11,7 @@
         public void SearchMovie();
 
         public void DisplayMoviesWithGenre();
+        public void DeleteMovie();
 
     }
 }
