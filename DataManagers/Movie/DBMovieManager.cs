@@ -180,22 +180,20 @@ namespace NetFinal.DataManagers.Movie
                             $"Out of the {movies.Count()} Movies in the table which Movie do you want(Select Option)?");
                         var option = menu.IntValueGetter();
                         DataModels.Movie selectedFilm = new DataModels.Movie();
-                        if (movies.Count() < option)
+                        while (movies.Count() < option || option <= 0)
                         {
-                            Console.WriteLine("Sorry that is not an option");
+                            Console.WriteLine("Sorry that is not an option (Enter a new option)");
+                            option = menu.IntValueGetter();
                         }
-                        else
+                        
+                        selectedFilm = movies.ToList()[option - 1];
+                        Console.WriteLine($"You have selected {movies.ToList()[option - 1].Title} to edit");
+                        var movieGenres = db.MovieGenres.Where(x => x.Movie == selectedFilm);
+                        previousTitle = movies.ToList()[option - 1].Title;
+                        foreach (var x in movieGenres)
                         {
-                            selectedFilm = movies.ToList()[option - 1];
-                            Console.WriteLine($"You have selected {movies.ToList()[option - 1].Title} to edit");
-                            var movieGenres = db.MovieGenres.Where(x => x.Movie == selectedFilm);
-                            previousTitle = movies.ToList()[option - 1].Title;
-                            foreach (var x in movieGenres)
-                            {
-                                db.Remove(x);
-                            }
+                            db.Remove(x);
                         }
-
                         Console.WriteLine("What is the title of the film?");
                         var title = Console.ReadLine();
                         Console.WriteLine("What year was the movie made? ex.(1979)");
