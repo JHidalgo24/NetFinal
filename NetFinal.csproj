@@ -31,6 +31,10 @@
       <None Include="..\..\..\.nuget\packages\nlog.config\4.7.12\contentFiles\any\any\NLog.config">
         <Link>miscfiles\NLog.config</Link>
       </None>
+      <None Remove="log_file.log" />
+      <EmbeddedResource Include="log_file.log">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>

@@ -23,6 +23,7 @@ namespace NetFinal
                 switch (option)
                 {
                     case 1:
+                        logger.Debug("User chose Add Movie");
                         movieManager.AddMovie();
                         break;
                     case 2:
@@ -54,8 +55,10 @@ namespace NetFinal
                         table.AddRow(1, "Search").AddRow(2,"Display all");
                         table.Write();
                         int choice = menu.IntValueGetter();
-                        if (choice == 1)
+                        if (choice == 1){
+                            logger.Debug("User chose Search Movies");
                             movieManager.SearchMovie();
+                        }
                         else if (choice == 2){
                             logger.Debug("User chose Display All Movies");
                             movieManager.DisplayAll();
@@ -84,10 +87,10 @@ namespace NetFinal
                         logger.Debug("User chose Display movies by genres");
                         break;
                     case 9:
+                        logger.Debug("User exited Program");
                         Console.WriteLine("Thank you for using the Application!");
                         break;
                     default:
-                        logger.Debug("User exited Program");
                         Console.WriteLine("Sorry that isn't a choice!");
                         break;
                 }

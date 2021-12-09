@@ -159,7 +159,7 @@ namespace NetFinal.DataManagers.Movie
 
                     Console.WriteLine("Which movie do you want to edit?");
                     var titleOfMovie = Console.ReadLine();
-                    var movies = db.Movies.Where(c => c.Title.ToLower().Contains(titleOfMovie));
+                    var movies = db.Movies.Where(c => c.Title.ToLower().Contains(titleOfMovie.ToLower()));
                     if (movies == null)
                     {
                         Console.WriteLine("Sorry that title didn't match any movies");
